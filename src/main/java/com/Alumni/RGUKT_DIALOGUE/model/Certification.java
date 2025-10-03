@@ -1,0 +1,30 @@
+package com.Alumni.RGUKT_DIALOGUE.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Set;
+
+@Data
+@Entity
+@Table(name = "Certifications")
+@AllArgsConstructor
+@NoArgsConstructor
+public class Certification {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name; // e.g., "AWS Certified"
+
+    // Students with this certification
+    @ManyToMany(mappedBy = "certifications")
+    private Set<StudentProfile> students;
+
+    // Alumni with this certification
+    @ManyToMany(mappedBy = "certifications")
+    private Set<AlumniProfile> alumni;
+}
