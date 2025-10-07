@@ -4,7 +4,10 @@ import com.Alumni.RGUKT_DIALOGUE.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -12,33 +15,32 @@ import java.util.Date;
 
 /**
  * Service to handle JWT creation, parsing, and validation
- * Automatically generates a 512-bit HS256 key on startup
+ * Uses a permanent secret key from application.properties
  */
 @Service
 public class JwtService {
 
-    // Automatically generated key (HMAC SHA-256 512-bit)
-    private final Key SIGNING_KEY;
+    @Value("${jwt.secret}")
+    private String secret;
 
-    public JwtService() {
-        // Generate key programmatically once
-        SIGNING_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-        System.out.println("Generated JWT Secret Key: " + SIGNING_KEY); // Optional: for debugging
+    private Key signingKey;
+
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     private Key getSignInKey() {
-        return SIGNING_KEY;
+        return signingKey;
     }
 
-    /**
-     * Generate JWT token for a user
-     */
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("userId", user.getId())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h expiry
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -55,7 +57,7 @@ public class JwtService {
     public boolean validateToken(String token, User user) {
         if(user == null) return false;
         final String email = extractUserName(token);
-        return (email.equals(user.getEmail())) && !isTokenExpired(token);
+        return email.equals(user.getEmail()) && !isTokenExpired(token);
     }
 
     private Claims extractClaims(String token) {

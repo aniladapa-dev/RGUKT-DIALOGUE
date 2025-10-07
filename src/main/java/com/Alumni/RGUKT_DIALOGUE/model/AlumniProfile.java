@@ -8,13 +8,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Represents Alumni-specific profile fields.
  * Extends base Profile.
  */
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,7 +24,7 @@ import java.util.Set;
 public class AlumniProfile extends Profile {
 
     @Column(name = "student_id", length = 20, nullable = false, unique = true)
-    private String studentId; // Unique alumni ID
+    private String studentId;
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
@@ -40,7 +40,7 @@ public class AlumniProfile extends Profile {
 
     @Column(name = "password_hash", nullable = false)
     @JsonIgnore
-    private String passwordHash; // Hide password hash in API
+    private String passwordHash;
 
     @Column(name = "current_position", length = 100)
     private String currentPosition;
@@ -48,31 +48,28 @@ public class AlumniProfile extends Profile {
     @Column(name = "company", length = 100)
     private String company;
 
-    // Back-reference to User
     @OneToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
 
-    // Many-to-many relationship with Skills
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "alumni_skills",
             joinColumns = @JoinColumn(name = "alumni_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private Set<Skill> skills;
+    private Set<Skill> skills = new HashSet<>();
 
-    // Many-to-many relationship with Certifications
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "alumni_certifications",
             joinColumns = @JoinColumn(name = "alumni_id"),
             inverseJoinColumns = @JoinColumn(name = "certification_id")
     )
-    private Set<Certification> certifications;
+    private Set<Certification> certifications = new HashSet<>();
 
-    // Work experiences are fetched dynamically
+    // Work experiences dynamically loaded
     @Transient
     private Set<WorkExperience> experiences;
 }

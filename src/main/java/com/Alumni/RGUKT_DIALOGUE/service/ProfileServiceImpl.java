@@ -2,11 +2,13 @@ package com.Alumni.RGUKT_DIALOGUE.service;
 
 import com.Alumni.RGUKT_DIALOGUE.model.*;
 import com.Alumni.RGUKT_DIALOGUE.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -17,6 +19,7 @@ import java.util.Set;
  * - Add skills and certifications
  * - Add and fetch alumni work experiences
  */
+
 @Service
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
@@ -66,12 +69,24 @@ public class ProfileServiceImpl implements ProfileService {
     // ----------------- FETCH PROFILES -----------------
     @Override
     public Profile getProfileByUserId(Long userId) {
-        // Try fetching student profile first
-        return studentProfileRepository.findByUserId(userId)
-                .map(profile -> (Profile) profile)
-                .orElseGet(() -> alumniProfileRepository.findByUserId(userId)
-                        .orElseThrow(() -> new RuntimeException("Profile not found for user ID: " + userId)));
+        // Fetch student profile
+        Optional<StudentProfile> studentOpt = studentProfileRepository.findByUserId(userId);
+        if (studentOpt.isPresent()) {
+            return studentOpt.get();
+        }
+
+        // Fetch alumni profile
+        AlumniProfile alumniProfile = alumniProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Profile not found for user ID: " + userId));
+
+        // Fetch and set work experiences for alumni
+        List<WorkExperience> experiences = workExperienceRepository.findByAlumniProfile(alumniProfile);
+        alumniProfile.setExperiences(Set.copyOf(experiences));
+
+        return alumniProfile; // returns Profile, which is fine
     }
+
+
 
     @Override
     public StudentProfile getStudentProfileByUserId(Long userId) {
@@ -81,88 +96,95 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public AlumniProfile getAlumniProfileByUserId(Long userId) {
-        return alumniProfileRepository.findByUserId(userId)
+        AlumniProfile alumni = alumniProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Alumni profile not found for user ID: " + userId));
+
+        // Load experiences
+        List<WorkExperience> experiences = workExperienceRepository.findByAlumniProfile(alumni);
+        alumni.setExperiences(Set.copyOf(experiences));
+
+        return alumni;
     }
 
     // ----------------- UPDATE PROFILES -----------------
     @Override
     public StudentProfile updateStudentProfile(StudentProfile profile) {
-        // Save updated student profile
         return studentProfileRepository.save(profile);
     }
 
     @Override
     public AlumniProfile updateAlumniProfile(AlumniProfile profile) {
-        // Save updated alumni profile
         return alumniProfileRepository.save(profile);
     }
 
     // ----------------- ADD SKILLS -----------------
+    @Transactional
     @Override
     public void addSkillsToProfile(Long userId, Set<String> skillNames) {
         Profile profile = getProfileByUserId(userId);
-        Set<Skill> skills = new HashSet<>();
+        Set<Skill> skillsToAdd = new HashSet<>();
 
-        // Fetch or create skills by name
         for (String name : skillNames) {
-            Skill skill = skillRepository.findByName(name)
-                    .orElseGet(() -> skillRepository.save(new Skill(null, name, new HashSet<>(), new HashSet<>())));
-            skills.add(skill);
+            Skill skill = skillRepository.findByName(name.toLowerCase())
+                    .orElseGet(() -> skillRepository.save(new Skill(name.toLowerCase())));
+            skillsToAdd.add(skill);
         }
 
-        // Add skills to profile and save
         if (profile instanceof StudentProfile studentProfile) {
-            studentProfile.setSkills(skills);
+            if (studentProfile.getSkills() == null) studentProfile.setSkills(new HashSet<>());
+            studentProfile.getSkills().addAll(skillsToAdd); // owning side updated
             studentProfileRepository.save(studentProfile);
         } else if (profile instanceof AlumniProfile alumniProfile) {
-            alumniProfile.setSkills(skills);
+            if (alumniProfile.getSkills() == null) alumniProfile.setSkills(new HashSet<>());
+            alumniProfile.getSkills().addAll(skillsToAdd); // owning side updated
             alumniProfileRepository.save(alumniProfile);
         }
     }
 
     // ----------------- ADD CERTIFICATIONS -----------------
+
     @Override
+    @Transactional
     public void addCertificationsToProfile(Long userId, Set<String> certNames) {
         Profile profile = getProfileByUserId(userId);
         Set<Certification> certifications = new HashSet<>();
 
-        // Fetch or create certifications by name
         for (String name : certNames) {
             Certification cert = certificationRepository.findByName(name)
-                    .orElseGet(() -> certificationRepository.save(new Certification(null, name, new HashSet<>(), new HashSet<>())));
+                    .orElseGet(() -> {
+                        Certification c = new Certification();
+                        c.setName(name);
+                        return certificationRepository.save(c);
+                    });
             certifications.add(cert);
         }
 
-        // Add certifications to profile and save
+        // Add certifications to profile
         if (profile instanceof StudentProfile studentProfile) {
-            studentProfile.setCertifications(certifications);
+            studentProfile.getCertifications().addAll(certifications);
             studentProfileRepository.save(studentProfile);
         } else if (profile instanceof AlumniProfile alumniProfile) {
-            alumniProfile.setCertifications(certifications);
+            alumniProfile.getCertifications().addAll(certifications);
             alumniProfileRepository.save(alumniProfile);
         }
     }
 
+
+
     // ----------------- ALUMNI WORK EXPERIENCE -----------------
     @Override
     public void addWorkExperience(String studentId, WorkExperience experience) {
-        // Fetch alumni profile by studentId
         AlumniProfile alumni = alumniProfileRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("Alumni profile not found for student ID: " + studentId));
 
-        // Link experience to alumni and save
         experience.setAlumniProfile(alumni);
         workExperienceRepository.save(experience);
     }
 
     @Override
     public List<WorkExperience> getWorkExperience(String studentId) {
-        // Fetch alumni profile by studentId
         AlumniProfile alumni = alumniProfileRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new RuntimeException("Alumni profile not found for student ID: " + studentId));
-
-        // Fetch all experiences for alumni
         return workExperienceRepository.findByAlumniProfile(alumni);
     }
 }

@@ -7,12 +7,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
-
-/**
- * Represents Student-specific profile fields.
- * Extends base Profile.
- */
 
 @Data
 @Entity
@@ -22,32 +18,30 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class StudentProfile extends Profile {
 
-    private Integer enrollmentYear; // Year of admission
-    private String department;      // Department name
-    private Integer currentSemester; // Current semester
-    private Double gpa;             // Grade Point Average
+    private Integer enrollmentYear;
+    private String department;
+    private Integer currentSemester;
+    private Double gpa;
 
-    // Back-reference to User to avoid infinite JSON recursion
     @OneToOne
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
 
-    // Many-to-many relationship with Skills
-    @ManyToMany
+    // Use EAGER fetch to avoid empty collections in API response
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "student_skills",
             joinColumns = @JoinColumn(name = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
-    private Set<Skill> skills;
+    private Set<Skill> skills = new HashSet<>();
 
-    // Many-to-many relationship with Certifications
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "student_certifications",
             joinColumns = @JoinColumn(name = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "certification_id")
     )
-    private Set<Certification> certifications;
+    private Set<Certification> certifications = new HashSet<>();
 }

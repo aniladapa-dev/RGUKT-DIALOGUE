@@ -2,7 +2,9 @@ package com.Alumni.RGUKT_DIALOGUE.repository;
 
 import com.Alumni.RGUKT_DIALOGUE.model.StudentProfile;
 import com.Alumni.RGUKT_DIALOGUE.model.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.Optional;
 
 /**
@@ -11,9 +13,20 @@ import java.util.Optional;
  */
 public interface StudentProfileRepository extends JpaRepository<StudentProfile, Long> {
 
-    // Find student profile by associated User ID
+    /**
+     * Fetch a student profile by user ID.
+     *
+     * Using @EntityGraph with attributePaths ensures that
+     * the associated 'skills' and 'certifications' Sets
+     * are eagerly loaded along with the profile.
+     * This avoids empty arrays when converting to JSON.
+     */
+    @EntityGraph(attributePaths = {"skills", "certifications"})
     Optional<StudentProfile> findByUserId(Long userId);
 
-    // Find student profile by associated User object
+    /**
+     * Fetch a student profile by User object.
+     * No eager fetching here, just a simple optional find.
+     */
     Optional<StudentProfile> findByUser(User user);
 }

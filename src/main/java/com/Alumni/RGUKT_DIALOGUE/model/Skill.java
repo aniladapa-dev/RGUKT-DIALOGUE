@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -18,13 +19,24 @@ public class Skill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // e.g., "Java"
+    @Column(unique = true, nullable = false)
+    private String name;
 
     // Students with this skill
     @ManyToMany(mappedBy = "skills")
-    private Set<StudentProfile> students;
+    private Set<StudentProfile> students = new HashSet<>();
 
     // Alumni with this skill
     @ManyToMany(mappedBy = "skills")
-    private Set<AlumniProfile> alumni;
+    private Set<AlumniProfile> alumni = new HashSet<>();
+
+    /**
+     * Constructor to create a skill with name
+     * Ensures lowercase and initializes collections
+     */
+    public Skill(String name) {
+        this.name = name.toLowerCase();
+        this.students = new HashSet<>();
+        this.alumni = new HashSet<>();
+    }
 }

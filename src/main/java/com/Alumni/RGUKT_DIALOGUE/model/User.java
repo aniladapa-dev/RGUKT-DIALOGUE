@@ -74,4 +74,13 @@ Protected APIs → only accessible if JWT is valid.
   "role": "STUDENT"
 }
 
+{
+  "name": "sona",
+  "email": "sona@gamil.com",
+  "password": "123456",
+  "role": "STUDENT"
+}
+
+
+
  */

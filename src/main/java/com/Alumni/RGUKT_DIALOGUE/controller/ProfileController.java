@@ -28,12 +28,14 @@ public class ProfileController {
 
     // ----------------- GET Endpoints -----------------
 
+    /** Fetch profile by user ID (student or alumni) */
     @GetMapping("/{userId}")
     public ResponseEntity<Profile> getProfile(@PathVariable Long userId) {
         Profile profile = profileService.getProfileByUserId(userId);
         return ResponseEntity.ok(profile);
     }
 
+    /** Fetch alumni work experiences by studentId */
     @GetMapping("/alumni/{studentId}/experience")
     public ResponseEntity<List<WorkExperience>> getAlumniWorkExperience(@PathVariable String studentId) {
         List<WorkExperience> experiences = profileService.getWorkExperience(studentId);
@@ -42,45 +44,55 @@ public class ProfileController {
 
     // ----------------- CREATE / ADD Endpoints -----------------
 
+    /** Add skills to student profile */
     @PostMapping("/{userId}/skills")
     public ResponseEntity<String> addSkills(@PathVariable Long userId,
                                             @RequestBody Set<String> skillNames,
                                             @RequestHeader("Authorization") String authHeader) {
         Long loggedInUserId = jwtService.extractUserId(authHeader.substring(7));
         if (!loggedInUserId.equals(userId)) {
-            return ResponseEntity.status(403).build();
+            return ResponseEntity.status(403).body("Forbidden: Cannot modify another user's profile");
         }
+
+        // Delegate conversion from String -> Skill to service
         profileService.addSkillsToProfile(userId, skillNames);
         return ResponseEntity.ok("Skills added successfully!");
     }
 
+    /** Add certifications to student profile */
     @PostMapping("/{userId}/certifications")
     public ResponseEntity<String> addCertifications(@PathVariable Long userId,
                                                     @RequestBody Set<String> certNames,
                                                     @RequestHeader("Authorization") String authHeader) {
         Long loggedInUserId = jwtService.extractUserId(authHeader.substring(7));
         if (!loggedInUserId.equals(userId)) {
-            return ResponseEntity.status(403).build();
+            return ResponseEntity.status(403).body("Forbidden: Cannot modify another user's profile");
         }
+
+        // Delegate conversion from String -> Certification to service
         profileService.addCertificationsToProfile(userId, certNames);
         return ResponseEntity.ok("Certifications added successfully!");
     }
 
+    /** Add work experience to alumni profile */
     @PostMapping("/alumni/{studentId}/experience")
     public ResponseEntity<String> addAlumniWorkExperience(@PathVariable String studentId,
                                                           @RequestBody WorkExperience experience,
                                                           @RequestHeader("Authorization") String authHeader) {
         Long loggedInUserId = jwtService.extractUserId(authHeader.substring(7));
         AlumniProfile profile = profileService.getAlumniProfileByUserId(loggedInUserId);
+
         if (!profile.getStudentId().equals(studentId)) {
-            return ResponseEntity.status(403).build();
+            return ResponseEntity.status(403).body("Forbidden: Cannot modify another alumni's profile");
         }
+
         profileService.addWorkExperience(studentId, experience);
         return ResponseEntity.ok("Work experience added successfully!");
     }
 
     // ----------------- UPDATE Endpoints -----------------
 
+    /** Update student profile */
     @PutMapping("/student/{userId}")
     public ResponseEntity<StudentProfile> updateStudentProfile(@PathVariable Long userId,
                                                                @RequestBody StudentProfile updatedProfile,
@@ -91,6 +103,8 @@ public class ProfileController {
         }
 
         StudentProfile profile = profileService.getStudentProfileByUserId(userId);
+
+        // Update basic fields
         profile.setBio(updatedProfile.getBio());
         profile.setAvatarUrl(updatedProfile.getAvatarUrl());
         profile.setDepartment(updatedProfile.getDepartment());
@@ -98,9 +112,11 @@ public class ProfileController {
         profile.setCurrentSemester(updatedProfile.getCurrentSemester());
         profile.setGpa(updatedProfile.getGpa());
 
+        // Delegate to service for DB save
         return ResponseEntity.ok(profileService.updateStudentProfile(profile));
     }
 
+    /** Update alumni profile */
     @PutMapping("/alumni/{userId}")
     public ResponseEntity<AlumniProfile> updateAlumniProfile(@PathVariable Long userId,
                                                              @RequestBody AlumniProfile updatedProfile,
@@ -111,6 +127,8 @@ public class ProfileController {
         }
 
         AlumniProfile profile = profileService.getAlumniProfileByUserId(userId);
+
+        // Update basic fields
         profile.setBio(updatedProfile.getBio());
         profile.setAvatarUrl(updatedProfile.getAvatarUrl());
         profile.setCurrentPosition(updatedProfile.getCurrentPosition());
@@ -119,6 +137,7 @@ public class ProfileController {
         profile.setStudentId(updatedProfile.getStudentId());
         profile.setUsername(updatedProfile.getUsername());
 
+        // Delegate to service for DB save
         return ResponseEntity.ok(profileService.updateAlumniProfile(profile));
     }
 }

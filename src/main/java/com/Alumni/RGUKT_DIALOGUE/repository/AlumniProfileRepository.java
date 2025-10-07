@@ -2,7 +2,9 @@ package com.Alumni.RGUKT_DIALOGUE.repository;
 
 import com.Alumni.RGUKT_DIALOGUE.model.AlumniProfile;
 import com.Alumni.RGUKT_DIALOGUE.model.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.Optional;
 
 /**
@@ -11,12 +13,20 @@ import java.util.Optional;
  */
 public interface AlumniProfileRepository extends JpaRepository<AlumniProfile, Long> {
 
-    // Find alumni profile by studentId
+    /**
+     * Fetch alumni profile by student ID.
+     */
     Optional<AlumniProfile> findByStudentId(String studentId);
 
-    // Find alumni profile by associated User ID
+    /**
+     * Fetch alumni profile by user ID with eager fetching of
+     * 'skills' and 'certifications' to avoid empty arrays in JSON.
+     */
+    @EntityGraph(attributePaths = {"skills", "certifications"})
     Optional<AlumniProfile> findByUserId(Long userId);
 
-    // Find alumni profile by associated User object
+    /**
+     * Fetch alumni profile by User object.
+     */
     Optional<AlumniProfile> findByUser(User user);
 }
