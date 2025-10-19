@@ -2,6 +2,7 @@ package com.Alumni.RGUKT_DIALOGUE.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "AlumniProfiles")
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"skills", "certifications"})
 public class AlumniProfile extends Profile {
 
     @Column(name = "student_id", length = 20, nullable = false, unique = true)
@@ -48,25 +49,22 @@ public class AlumniProfile extends Profile {
     @Column(name = "company", length = 100)
     private String company;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    @JsonBackReference
-    private User user;
-
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "alumni_skills",
+            name = "alumni_skills",  // or alumni_skills table if separate
             joinColumns = @JoinColumn(name = "alumni_id"),
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
+    @JsonManagedReference
     private Set<Skill> skills = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "alumni_certifications",
+            name = "alumni_certifications", // or alumni_certifications table
             joinColumns = @JoinColumn(name = "alumni_id"),
             inverseJoinColumns = @JoinColumn(name = "certification_id")
     )
+    @JsonManagedReference
     private Set<Certification> certifications = new HashSet<>();
 
     // Work experiences dynamically loaded

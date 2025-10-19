@@ -57,7 +57,7 @@ public class ProfileServiceImpl implements ProfileService {
                         profile.setAvatarUrl("");
                         profile.setStudentId("AL" + user.getId()); // unique ID
                         profile.setName(user.getName());
-                        profile.setPersonalEmail(user.getEmail());
+                          profile.setPersonalEmail(user.getEmail());
                         profile.setUsername(user.getEmail());
                         return alumniProfileRepository.save(profile);
                     });
@@ -66,7 +66,7 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-    // ----------------- FETCH PROFILES -----------------
+    //  FETCH PROFILES
     @Override
     public Profile getProfileByUserId(Long userId) {
         // Fetch student profile
@@ -85,8 +85,6 @@ public class ProfileServiceImpl implements ProfileService {
 
         return alumniProfile; // returns Profile, which is fine
     }
-
-
 
     @Override
     public StudentProfile getStudentProfileByUserId(Long userId) {
@@ -171,7 +169,7 @@ public class ProfileServiceImpl implements ProfileService {
 
 
 
-    // ----------------- ALUMNI WORK EXPERIENCE -----------------
+    //  ALUMNI WORK EXPERIENCE
     @Override
     public void addWorkExperience(String studentId, WorkExperience experience) {
         AlumniProfile alumni = alumniProfileRepository.findByStudentId(studentId)

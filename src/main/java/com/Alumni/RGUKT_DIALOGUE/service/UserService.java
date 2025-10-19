@@ -41,7 +41,7 @@ public class UserService {
     @Autowired
     private JwtService jwtService;
 
-    // ---------------- Register Single User ----------------
+    // Register Single User
     public User registerUser(User user) {
         // Check if password is provided
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
@@ -59,7 +59,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // ---------------- Bulk Registration ----------------
+    //  Bulk Registration
     public List<User> registerUsers(List<User> users) {
         for (User user : users) {
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
@@ -72,7 +72,7 @@ public class UserService {
         return userRepository.saveAll(users);
     }
 
-    // ---------------- Login ----------------
+    //  Login
     public LoginResponse login(String email, String password) {
         if (email == null || password == null) {
             throw new RuntimeException("Email and password must be provided!");
@@ -117,7 +117,7 @@ public class UserService {
         return new LoginResponse(token, user.getId());
     }
 
-    // ---------------- Update User ----------------
+    //  Update User
     public User updateUser(Long id, User updatedUser) {
         return userRepository.findById(id).map(user -> {
             user.setName(updatedUser.getName());
@@ -134,12 +134,12 @@ public class UserService {
         }).orElseThrow(() -> new RuntimeException("User not found with id " + id));
     }
 
-    // ---------------- Delete User ----------------
+    //  Delete User
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
-    // ---------------- Find by Email ----------------
+    //  Find by Email
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }

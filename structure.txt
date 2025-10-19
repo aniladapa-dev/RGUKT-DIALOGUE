@@ -1,0 +1,80 @@
+.
+├── HELP.md
+├── mvnw
+├── mvnw.cmd
+├── pom.xml
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── Alumni
+│   │   │           └── RGUKT_DIALOGUE
+│   │   │               ├── config
+│   │   │               │   └── SecurityConfig.java
+│   │   │               ├── controller
+│   │   │               │   ├── ConnectionController.java
+│   │   │               │   ├── ProfileController.java
+│   │   │               │   └── UserController.java
+│   │   │               ├── dto
+│   │   │               │   ├── ConnectionDto.java
+│   │   │               │   ├── ConnectionRequestDto.java
+│   │   │               │   ├── LoginRequest.java
+│   │   │               │   ├── LoginResponse.java
+│   │   │               │   ├── RespondConnectionRequestDto.java
+│   │   │               │   └── SendConnectionRequestDto.java
+│   │   │               ├── exception
+│   │   │               │   └── GlobalExceptionHandler.java
+│   │   │               ├── model
+│   │   │               │   ├── AlumniProfile.java
+│   │   │               │   ├── Certification.java
+│   │   │               │   ├── Comment.java
+│   │   │               │   ├── Connection.java
+│   │   │               │   ├── ConnectionRequest.java
+│   │   │               │   ├── Conversation.java
+│   │   │               │   ├── Message.java
+│   │   │               │   ├── Post.java
+│   │   │               │   ├── PostLike.java
+│   │   │               │   ├── PostView.java
+│   │   │               │   ├── Profile.java
+│   │   │               │   ├── Skill.java
+│   │   │               │   ├── Story.java
+│   │   │               │   ├── StoryView.java
+│   │   │               │   ├── StudentProfile.java
+│   │   │               │   ├── User.java
+│   │   │               │   └── WorkExperience.java
+│   │   │               ├── repository
+│   │   │               │   ├── AlumniAccount.java
+│   │   │               │   ├── AlumniProfileRepository.java
+│   │   │               │   ├── CertificationRepository.java
+│   │   │               │   ├── ConnectionRepository.java
+│   │   │               │   ├── ConnectionRequestRepository.java
+│   │   │               │   ├── SkillRepository.java
+│   │   │               │   ├── StudentProfileRepository.java
+│   │   │               │   ├── UserRepository.java
+│   │   │               │   └── WorkExperienceRepository.java
+│   │   │               ├── RguktDialogueApplication.java
+│   │   │               ├── security
+│   │   │               │   ├── JwtFilter.java
+│   │   │               │   └── UserPrinciple.java
+│   │   │               └── service
+│   │   │                   ├── ConnectionService.java
+│   │   │                   ├── JwtService.java
+│   │   │                   ├── MyUserDetailService.java
+│   │   │                   ├── ProfileServiceImpl.java
+│   │   │                   ├── ProfileService.java
+│   │   │                   └── UserService.java
+│   │   └── resources
+│   │       ├── application.properties
+│   │       ├── db
+│   │       │   └── migration
+│   │       ├── static
+│   │       └── templates
+│   └── test
+│       └── java
+│           └── com
+│               └── Alumni
+│                   └── RGUKT_DIALOGUE
+│                       └── RguktDialogueApplicationTests.java
+└── structure.txt
+
+25 directories, 53 files

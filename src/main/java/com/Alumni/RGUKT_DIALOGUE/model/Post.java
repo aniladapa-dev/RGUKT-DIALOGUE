@@ -4,28 +4,35 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+/**
+ * Entity representing user-generated posts on the platform.
+ * Each post belongs to one user.
+ */
 @Data
 @Entity
-@Table(name = "Posts")
+@Table(name = "posts")
 public class Post {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne  //A user can create multiple posts.
-    //But each post belongs to one user only.
-    @JoinColumn(name = "userId", nullable = false)
+    /**
+     * Many posts can belong to one user.
+     * CascadeType.ALL is NOT used here to avoid accidental user deletion.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    //@Column
-    //This is telling JPA how to map this field to a database column.
+    /** Text content of the post */
+    @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String mediaUrl;
-    private int likesCount = 0;
-    private int viewsCount = 0;
+    /** Optional image URL if post contains an image */
+    private String imageUrl;
 
+    /** Timestamp when post was created */
     private LocalDateTime createdAt = LocalDateTime.now();
-}
 
+}

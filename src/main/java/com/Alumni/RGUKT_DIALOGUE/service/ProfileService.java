@@ -10,28 +10,28 @@ import java.util.Set;
  */
 public interface ProfileService {
 
-    // ----------------- PROFILE FETCH -----------------
+    //  PROFILE FETCH
     Profile getProfileByUserId(Long userId);
 
     StudentProfile getStudentProfileByUserId(Long userId);
 
     AlumniProfile getAlumniProfileByUserId(Long userId);
 
-    // ----------------- PROFILE UPDATE -----------------
+    //  PROFILE UPDATE
     StudentProfile updateStudentProfile(StudentProfile profile);
 
     AlumniProfile updateAlumniProfile(AlumniProfile profile);
 
-    // ----------------- SKILLS & CERTIFICATIONS -----------------
+    //  SKILLS & CERTIFICATIONS
     void addSkillsToProfile(Long userId, Set<String> skillNames);
 
     void addCertificationsToProfile(Long userId, Set<String> certNames);
 
-    // ----------------- ALUMNI WORK EXPERIENCE -----------------
+    //  ALUMNI WORK EXPERIENCE
     void addWorkExperience(String studentId, WorkExperience experience);
 
     List<WorkExperience> getWorkExperience(String studentId);
 
-    // ----------------- CREATE PROFILE -----------------
+    //  CREATE PROFILE
     Profile createProfileForUser(User user);
 }

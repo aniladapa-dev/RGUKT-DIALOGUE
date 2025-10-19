@@ -1,5 +1,7 @@
 package com.Alumni.RGUKT_DIALOGUE.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,13 +24,14 @@ public class Skill {
     @Column(unique = true, nullable = false)
     private String name;
 
-    // Students with this skill
     @ManyToMany(mappedBy = "skills")
+    @JsonBackReference
     private Set<StudentProfile> students = new HashSet<>();
 
-    // Alumni with this skill
     @ManyToMany(mappedBy = "skills")
+    @JsonBackReference
     private Set<AlumniProfile> alumni = new HashSet<>();
+
 
     /**
      * Constructor to create a skill with name

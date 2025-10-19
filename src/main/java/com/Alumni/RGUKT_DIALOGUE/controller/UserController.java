@@ -10,6 +10,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/*
+ * Endpoints:
+ * POST   /api/users/register       -> register a single user
+ * POST   /api/users/registers      -> bulk registration of multiple users
+ * POST   /api/users/login          -> login and get JWT token
+ * PUT    /api/users/{id}           -> update user details
+ * DELETE /api/users/{id}           -> delete a user by ID
+ */
+
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor

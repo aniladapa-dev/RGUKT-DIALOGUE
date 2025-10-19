@@ -1,5 +1,9 @@
 package com.Alumni.RGUKT_DIALOGUE.controller;
 
+import java.util.stream.Collectors;
+
+import com.Alumni.RGUKT_DIALOGUE.dto.AlumniProfileUpdateRequest;
+import com.Alumni.RGUKT_DIALOGUE.dto.StudentProfileUpdateRequest;
 import com.Alumni.RGUKT_DIALOGUE.model.*;
 import com.Alumni.RGUKT_DIALOGUE.service.ProfileService;
 import com.Alumni.RGUKT_DIALOGUE.service.JwtService;
@@ -10,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
-/**
+/*
  * Controller for managing student and alumni profiles.
  * Responsibilities:
  *  - Fetch profile
@@ -18,6 +22,18 @@ import java.util.Set;
  *  - Add skills, certifications, and alumni work experiences
  *  - Protected by JWT authentication
  */
+
+/*
+ * Endpoints:
+ * GET    /api/profiles/{userId}                     -> fetch profile of a student or alumni by user ID
+ * GET    /api/profiles/alumni/{studentId}/experience -> fetch alumni work experiences by student ID
+ * POST   /api/profiles/{userId}/skills             -> add skills to student profile
+ * POST   /api/profiles/{userId}/certifications     -> add certifications to student profile
+ * POST   /api/profiles/alumni/{studentId}/experience -> add work experience to alumni profile
+ * PUT    /api/profiles/student/{userId}           -> update student profile (using DTO)
+ * PUT    /api/profiles/alumni/{userId}            -> update alumni profile (using DTO)
+ */
+
 @RestController
 @RequestMapping("/api/profiles")
 @RequiredArgsConstructor
@@ -26,7 +42,8 @@ public class ProfileController {
     private final ProfileService profileService;
     private final JwtService jwtService;
 
-    // ----------------- GET Endpoints -----------------
+
+    //  GET Endpoints
 
     /** Fetch profile by user ID (student or alumni) */
     @GetMapping("/{userId}")
@@ -42,8 +59,7 @@ public class ProfileController {
         return ResponseEntity.ok(experiences);
     }
 
-    // ----------------- CREATE / ADD Endpoints -----------------
-
+    //Create/Add Endpoints
     /** Add skills to student profile */
     @PostMapping("/{userId}/skills")
     public ResponseEntity<String> addSkills(@PathVariable Long userId,
@@ -90,12 +106,10 @@ public class ProfileController {
         return ResponseEntity.ok("Work experience added successfully!");
     }
 
-    // ----------------- UPDATE Endpoints -----------------
-
-    /** Update student profile */
+    // Update student profile using DTO
     @PutMapping("/student/{userId}")
     public ResponseEntity<StudentProfile> updateStudentProfile(@PathVariable Long userId,
-                                                               @RequestBody StudentProfile updatedProfile,
+                                                               @RequestBody StudentProfileUpdateRequest request,
                                                                @RequestHeader("Authorization") String authHeader) {
         Long loggedInUserId = jwtService.extractUserId(authHeader.substring(7));
         if (!loggedInUserId.equals(userId)) {
@@ -105,21 +119,28 @@ public class ProfileController {
         StudentProfile profile = profileService.getStudentProfileByUserId(userId);
 
         // Update basic fields
-        profile.setBio(updatedProfile.getBio());
-        profile.setAvatarUrl(updatedProfile.getAvatarUrl());
-        profile.setDepartment(updatedProfile.getDepartment());
-        profile.setEnrollmentYear(updatedProfile.getEnrollmentYear());
-        profile.setCurrentSemester(updatedProfile.getCurrentSemester());
-        profile.setGpa(updatedProfile.getGpa());
+        profile.setBio(request.getBio());
+        profile.setAvatarUrl(request.getAvatarUrl());
+        profile.setDepartment(request.getDepartment());
+        profile.setEnrollmentYear(request.getEnrollmentYear());
+        profile.setCurrentSemester(request.getCurrentSemester());
+        profile.setGpa(request.getGpa());
 
-        // Delegate to service for DB save
+        // Update skills and certifications by names
+        if (request.getSkills() != null && !request.getSkills().isEmpty()) {
+            profileService.addSkillsToProfile(userId, request.getSkills());
+        }
+        if (request.getCertifications() != null && !request.getCertifications().isEmpty()) {
+            profileService.addCertificationsToProfile(userId, request.getCertifications());
+        }
+
         return ResponseEntity.ok(profileService.updateStudentProfile(profile));
     }
 
-    /** Update alumni profile */
+    // Update alumni profile using DTO
     @PutMapping("/alumni/{userId}")
     public ResponseEntity<AlumniProfile> updateAlumniProfile(@PathVariable Long userId,
-                                                             @RequestBody AlumniProfile updatedProfile,
+                                                             @RequestBody AlumniProfileUpdateRequest request,
                                                              @RequestHeader("Authorization") String authHeader) {
         Long loggedInUserId = jwtService.extractUserId(authHeader.substring(7));
         if (!loggedInUserId.equals(userId)) {
@@ -129,15 +150,23 @@ public class ProfileController {
         AlumniProfile profile = profileService.getAlumniProfileByUserId(userId);
 
         // Update basic fields
-        profile.setBio(updatedProfile.getBio());
-        profile.setAvatarUrl(updatedProfile.getAvatarUrl());
-        profile.setCurrentPosition(updatedProfile.getCurrentPosition());
-        profile.setCompany(updatedProfile.getCompany());
-        profile.setMobileNumber(updatedProfile.getMobileNumber());
-        profile.setStudentId(updatedProfile.getStudentId());
-        profile.setUsername(updatedProfile.getUsername());
+        profile.setBio(request.getBio());
+        profile.setAvatarUrl(request.getAvatarUrl());
+        profile.setCurrentPosition(request.getCurrentPosition());
+        profile.setCompany(request.getCompany());
+        profile.setMobileNumber(request.getMobileNumber());
+        profile.setStudentId(request.getStudentId());
+        profile.setUsername(request.getUsername());
 
-        // Delegate to service for DB save
+        // Update skills and certifications by names
+        if (request.getSkills() != null && !request.getSkills().isEmpty()) {
+            profileService.addSkillsToProfile(userId, request.getSkills());
+        }
+        if (request.getCertifications() != null && !request.getCertifications().isEmpty()) {
+            profileService.addCertificationsToProfile(userId, request.getCertifications());
+        }
+
         return ResponseEntity.ok(profileService.updateAlumniProfile(profile));
     }
+
 }

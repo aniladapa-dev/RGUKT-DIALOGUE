@@ -14,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 
 /**
+ * responsible for creating, reading, and validating JWT tokens.
  * Service to handle JWT creation, parsing, and validation
  * Uses a permanent secret key from application.properties
  */
@@ -25,6 +26,8 @@ public class JwtService {
 
     private Key signingKey;
 
+    //This annotation tells
+    //Run this method once automatically, just after the object is created and all the fields are filled
     @PostConstruct
     public void init() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);

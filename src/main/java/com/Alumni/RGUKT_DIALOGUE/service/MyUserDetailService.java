@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
+ * Finds user details (email, password) from DB and gives them to Spring Security, During login & token validation
  * Service to load user details by email (for authentication)
  */
 @Service

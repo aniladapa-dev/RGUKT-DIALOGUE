@@ -29,4 +29,19 @@ public interface ConnectionRepository extends JpaRepository<Connection, Long> {
     @Query("SELECT CASE WHEN c.user1.id = :userId THEN c.user2.id ELSE c.user1.id END " +
             "FROM Connection c WHERE c.user1.id = :userId OR c.user2.id = :userId")
     List<Long> findConnectedUserIds(@Param("userId") Long userId);
+
+    /**
+     * Get the list of User entities connected (accepted) with a given user.
+     */
+    @Query(
+            value = "SELECT user2_id FROM connection WHERE user1_id = :userId AND status = 'ACCEPTED' " +
+                    "UNION " +
+                    "SELECT user1_id FROM connection WHERE user2_id = :userId AND status = 'ACCEPTED'",
+            nativeQuery = true
+    )
+    List<Long> findAcceptedConnectionIds(@Param("userId") Long userId);
+
+
+
+
 }

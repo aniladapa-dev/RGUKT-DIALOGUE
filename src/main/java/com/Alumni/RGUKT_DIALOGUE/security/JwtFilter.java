@@ -23,7 +23,7 @@ import java.io.IOException;
  * - Validates token
  * - Sets Authentication in SecurityContext if valid
  */
-@Component
+@Component //spring will manage it as bean
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -36,14 +36,14 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ----------------- 1. Get Authorization Header -----------------
+        // 1. Get Authorization Header
         final String authHeader = request.getHeader("Authorization");
 
         String email = null;
         String token = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7); // Remove "Bearer " prefix
+            token = authHeader.substring(7); // Remove "Bearer" prefix
             try {
                 email = jwtService.extractUserName(token); // Extract email
             } catch (Exception e) {
@@ -51,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        // ----------------- 2. Validate Token -----------------
+        // 2. Validate Token
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Load user details by email
             UserDetails userDetails = userDetailService.loadUserByUsername(email);
@@ -64,7 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                // Set authentication in SecurityContext
+                // Set authentication in SecurityContext as "logged in"
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }

@@ -8,6 +8,7 @@ import java.util.Collection;
 
 /**
  * UserPrinciple wraps our User entity and implements UserDetails
+ * Spring Security works with UserDetails for authentication
  * This allows Spring Security to understand our User.
  */
 public class UserPrinciple implements UserDetails {

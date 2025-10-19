@@ -2,27 +2,30 @@ package com.Alumni.RGUKT_DIALOGUE.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "Comments")
 public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // The user who commented
     @ManyToOne
-    @JoinColumn(name = "postId", nullable = false)
-    private Post post;
-
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String content;
+    // The post on which comment is made
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    // The actual comment content
+    private String comment;  // MUST match 'setComment()'
+
+    // Timestamp
+    private LocalDateTime createdAt;  // MUST match 'setCreatedAt()'
 }
-

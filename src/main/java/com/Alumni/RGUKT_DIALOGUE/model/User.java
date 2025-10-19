@@ -36,16 +36,6 @@ public class User {
     public enum Role {
         STUDENT, ALUMNI, ADMIN
     }
-
-    // One-to-one relationship with StudentProfile
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonManagedReference // Avoid infinite JSON recursion
-    private StudentProfile studentProfile;
-
-    // One-to-one relationship with AlumniProfile
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private AlumniProfile alumniProfile;
 }
 
 /*
@@ -80,6 +70,23 @@ Protected APIs → only accessible if JWT is valid.
   "password": "123456",
   "role": "STUDENT"
 }
+
+
+{
+  "name": "ramu",
+  "email": "ramu@gamil.com",
+  "password": "123456",
+  "role": "STUDENT"
+}
+
+
+{
+  "name": "uday",
+  "email": "uday@gamil.com",
+  "password": "123456",
+  "role": "STUDENT"
+}
+
 
 
 

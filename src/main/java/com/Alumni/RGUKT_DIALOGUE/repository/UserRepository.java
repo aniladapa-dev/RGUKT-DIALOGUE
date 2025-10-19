@@ -1,31 +1,47 @@
 package com.Alumni.RGUKT_DIALOGUE.repository;
 
+import com.Alumni.RGUKT_DIALOGUE.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.util.List;
-import com.Alumni.RGUKT_DIALOGUE.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 import java.util.Optional;
 
 /**
  * Repository for User entity.
- * Provides standard CRUD operations + custom queries.
+ * Provides CRUD operations, search, and connection-related queries.
  */
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Find user by email (unique)
+    // Find user by email (for login)
     Optional<User> findByEmail(String email);
 
-    // Find user by name (optional, for search purposes)
-    Optional<User> findByName(String name);
+    // Find users by exact name
+    List<User> findByName(String name);
 
-    /**
-     * Find users whose id is NOT in the excluded list (used for suggestions).
-     */
+    // Search users by partial name (case-insensitive)
+    List<User> findByNameContainingIgnoreCase(String name);
+
+    // Fetch users whose IDs are NOT in excludedIds (for suggestions)
     Page<User> findByIdNotIn(List<Long> excludedIds, Pageable pageable);
 
-    /**
-     * If excluded list is empty, fallback to findAll with paging.
-     */
+    // Fallback: fetch all users with pagination
     Page<User> findAll(Pageable pageable);
+
+    /**
+     * Fetch all accepted connections for a user
+     */
+    @Query(
+            value = "SELECT user2_id FROM connection WHERE user1_id = :userId AND status = 'ACCEPTED' " +
+                    "UNION " +
+                    "SELECT user1_id FROM connection WHERE user2_id = :userId AND status = 'ACCEPTED'",
+            nativeQuery = true
+    )
+    List<Long> findAcceptedConnectionIds(@Param("userId") Long userId);
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.Alumni.RGUKT_DIALOGUE.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,10 +18,10 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;  // Primary key for all profiles
 
-    @OneToOne  // One-to-one relationship with User
-    @JoinColumn(name = "userId", nullable = false, unique = true)
-    // 'userId' will be foreign key pointing to 'id' in Users table
-    private User user;  // Profile belongs to one user
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
     private String bio;        // Short biography of the user
     private String avatarUrl;  // Profile picture URL

@@ -1,5 +1,6 @@
 package com.Alumni.RGUKT_DIALOGUE.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,9 +23,11 @@ public class Certification {
 
     // Students with this certification
     @ManyToMany(mappedBy = "certifications")
+    @JsonBackReference
     private Set<StudentProfile> students;
 
     // Alumni with this certification
     @ManyToMany(mappedBy = "certifications")
+    @JsonBackReference
     private Set<AlumniProfile> alumni;
 }
