@@ -1,6 +1,7 @@
 package com.Alumni.RGUKT_DIALOGUE.service;
 
 import com.Alumni.RGUKT_DIALOGUE.model.User;
+import com.Alumni.RGUKT_DIALOGUE.model.Admin;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,9 +15,8 @@ import java.security.Key;
 import java.util.Date;
 
 /**
- * responsible for creating, reading, and validating JWT tokens.
- * Service to handle JWT creation, parsing, and validation
- * Uses a permanent secret key from application.properties
+ * Responsible for creating, reading, and validating JWT tokens
+ * Handles both User and Admin tokens
  */
 @Service
 public class JwtService {
@@ -26,8 +26,6 @@ public class JwtService {
 
     private Key signingKey;
 
-    //This annotation tells
-    //Run this method once automatically, just after the object is created and all the fields are filled
     @PostConstruct
     public void init() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
@@ -38,29 +36,66 @@ public class JwtService {
         return signingKey;
     }
 
+    // ------------------ USER TOKEN ------------------
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getEmail())
                 .claim("userId", user.getId())
+                .claim("role", "USER")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    public boolean validateToken(String token, User user) {
+        if (user == null) return false;
+        final String email = extractUserName(token);
+        final String role = extractRole(token);
+        return email.equals(user.getEmail()) && role.equals("USER") && !isTokenExpired(token);
+    }
+
+    // ------------------ ADMIN TOKEN ------------------
+    public String generateToken(Admin admin) {
+        return Jwts.builder()
+                .setSubject(admin.getEmail())
+                .claim("adminId", admin.getId())
+                .claim("role", "ADMIN")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24h
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean validateToken(String token, Admin admin) {
+        if (admin == null) return false;
+        final String email = extractUserName(token);
+        final String role = extractRole(token);
+        return email.equals(admin.getEmail()) && role.equals("ADMIN") && !isTokenExpired(token);
+    }
+
+    // ------------------ COMMON METHODS ------------------
     public String extractUserName(String token) {
         return extractClaims(token).getSubject();
     }
 
     public Long extractUserId(String token) {
         Claims claims = extractClaims(token);
-        return Long.valueOf(claims.get("userId").toString());
+        return claims.get("userId") != null
+                ? Long.valueOf(claims.get("userId").toString())
+                : null;
     }
 
-    public boolean validateToken(String token, User user) {
-        if(user == null) return false;
-        final String email = extractUserName(token);
-        return email.equals(user.getEmail()) && !isTokenExpired(token);
+    public Long extractAdminId(String token) {
+        Claims claims = extractClaims(token);
+        return claims.get("adminId") != null
+                ? Long.valueOf(claims.get("adminId").toString())
+                : null;
+    }
+
+    public String extractRole(String token) {
+        Claims claims = extractClaims(token);
+        return claims.get("role", String.class);
     }
 
     private Claims extractClaims(String token) {

@@ -123,4 +123,21 @@ public class PostServiceImpl implements PostService {
         response.setCreatedAt(post.getCreatedAt());
         return response;
     }
+
+    @Override
+    public Post getPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with ID: " + postId));
+    }
+
+    @Override
+    public void savePost(Post post) {
+        postRepository.save(post);
+    }
+
+    @Override
+    public void deletePost(Long postId) {
+        postRepository.deleteById(postId);
+    }
+
 }

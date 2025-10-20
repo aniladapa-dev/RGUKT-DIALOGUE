@@ -1,6 +1,7 @@
 package com.Alumni.RGUKT_DIALOGUE.service;
 
 import com.Alumni.RGUKT_DIALOGUE.dto.*;
+import com.Alumni.RGUKT_DIALOGUE.model.Post;
 
 import java.util.List;
 
@@ -20,4 +21,11 @@ public interface PostService {
     PostResponse likePost(LikeRequest likeRequest);
 
     PostResponse commentOnPost(CommentRequest commentRequest);
+
+    // --- Admin operations ---
+    Post getPostById(Long postId);
+
+    void savePost(Post post);
+
+    void deletePost(Long postId);
 }
